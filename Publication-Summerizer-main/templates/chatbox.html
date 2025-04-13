@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot with File Upload</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5dc; /* Beige color */
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        height: 100vh;
+      }
+
+      .chat-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        height: 80vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 8px;
+      }
+
+      .user-message {
+        background-color: #d4e157; /* Light green for user */
+        align-self: flex-end;
+        text-align: right;
+      }
+
+      .bot-message {
+        background-color: #ffeb3b; /* Light yellow for bot */
+        align-self: flex-start;
+        text-align: left;
+      }
+
+      .input-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        background-color: #fff;
+        border-top: 1px solid #ddd;
+      }
+
+      input[type="text"],
+      input[type="file"] {
+        width: 45%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #d4e157;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+
+      button:hover {
+        background-color: #c0ca33;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container" id="chat-container">
+      <!-- Messages will be appended here -->
+    </div>
+
+    <div class="input-container">
+      <input type="text" id="user-input" placeholder="Type your message..." />
+      <input type="file" id="bib-file" accept=".bib" />
+      <input type="file" id="xlsx-file" accept=".xlsx" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+      function displayBotResponse(response) {
+        const chatContainer = document.getElementById("chat-container");
+        const botMessage = document.createElement("div");
+        botMessage.classList.add("message", "bot-message");
+        chatContainer.appendChild(botMessage);
+
+        let wordIndex = 0;
+        const words = response.split(" ");
+
+        const typingInterval = setInterval(() => {
+          if (wordIndex < words.length) {
+            botMessage.innerHTML += words[wordIndex] + " ";
+            wordIndex++;
+          } else {
+            clearInterval(typingInterval);
+          }
+        }, 200); // Delay between each word (in ms)
+
+        chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
+      }
+
+      function encodeFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result.split(",")[1]); // Extract base64 string
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function sendMessage() {
+        const userInput = document.getElementById("user-input").value.trim();
+        if (userInput === "") return;
+
+        // Display the user's message
+        const chatContainer = document.getElementById("chat-container");
+        const userMessage = document.createElement("div");
+        userMessage.classList.add("message", "user-message");
+        userMessage.innerHTML = userInput;
+        chatContainer.appendChild(userMessage);
+        document.getElementById("user-input").value = ""; // Clear input field
+
+        // Get files
+        const bibFile = document.getElementById("bib-file").files[0];
+        const xlsxFile = document.getElementById("xlsx-file").files[0];
+
+        let bibBase64 = null;
+        let xlsxBase64 = null;
+
+        if (bibFile) {
+          bibBase64 = await encodeFileAsBase64(bibFile);
+        }
+        if (xlsxFile) {
+          xlsxBase64 = await encodeFileAsBase64(xlsxFile);
+        }
+
+        // Create the payload
+        const payload = {
+          model: "llama3.2",
+          prompt: userInput,
+          bib_file: bibBase64,
+          xlsx_file: xlsxBase64,
+        };
+
+        // Send the JSON request
+        fetch("/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const botResponse = data.response;
+            displayBotResponse(botResponse); // Display the bot's response
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            displayBotResponse("Sorry, I couldn't process your request.");
+          });
+      }
+
+      document.getElementById("user-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          sendMessage();
+        }
+      });
+    </script>
+  </body>
+</html>

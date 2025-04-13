@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Landing Page</title>
+    <style>
+      /* General styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, beige, rgb(239, 239, 190));
+        color: #333;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 50px;
+        background: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      header .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ff6f61;
+        animation: fadeInLeft 1.5s;
+      }
+
+      header nav ul {
+        list-style: none;
+        display: flex;
+      }
+
+      header nav ul li {
+        margin: 0 15px;
+      }
+
+      header nav ul li a {
+        text-decoration: none;
+        color: #333;
+        font-size: 1rem;
+        transition: color 0.3s ease;
+      }
+
+      header nav ul li a:hover {
+        color: #ff6f61;
+      }
+
+      .hero {
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        animation: fadeInUp 2s;
+      }
+
+      .hero h1 {
+        font-size: 3rem;
+        color: #000;
+      }
+
+      .hero p {
+        font-size: 1.2rem;
+        margin: 20px 0;
+        color: #000;
+      }
+
+      .hero button {
+        padding: 10px 30px;
+        font-size: 1rem;
+        color: #fff;
+        background: #000;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+
+      .hero button:hover {
+        transform: scale(1.1);
+      }
+
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      footer {
+        background: #333;
+        color: #fff;
+        text-align: center;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      footer p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">Bugbyte</div>
+      <nav>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Login</a></li>
+          <li><a href="/excel">Excel</a></li>
+          <li><a href="/bibtex">Bibtex</a></li>
+          <li><a href="/organization">Organization</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Welcome to Our Service</h1>
+      <p>
+        Your gateway to amazing experiences and solutions. Let's get started!
+      </p>
+      <button>Get Started</button>
+    </section>
+
+    <footer>
+      <p>&copy; 2024 Bugbyte. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
