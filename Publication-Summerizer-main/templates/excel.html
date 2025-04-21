@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bulk Author Publication Fetch</title>
+</head>
+<body>
+    <h2>Upload Excel Sheet</h2>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx,.csv" required>
+        <button type="submit">Upload & Fetch</button>
+    </form>
+</body>
+</html>

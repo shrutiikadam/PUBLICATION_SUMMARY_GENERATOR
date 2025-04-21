@@ -1,6 +1,5 @@
 import os
-from turtle import pd
-from flask import Flask, render_template, request, jsonify ,redirect, url_for
+from flask import Flask, render_template, request, jsonify ,redirect, url_for,Response, stream_with_context
 import openpyxl
 from habanero import Crossref
 import bibtexparser
@@ -10,93 +9,94 @@ import time
 import json
 from pybtex.database import parse_string
 from transformers import PegasusForConditionalGeneration, PegasusTokenizer
-
-
+from scholarly import scholarly
+import pandas as pd
 app = Flask(__name__)
 
-api_key = ''
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+api_key = '2f545f4a6d8667f8a35885ddc7c6edb6c8558d88d4de1bfc2ae4544995399c8b'
+app.config['UPLOAD_FOLDER'] = 'uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Persistent storage for results
 original_publications = {}
 filtered_publications = {}
 filters = {"year_from": None, "year_to": None, "type": None}
 
-@app.route('/excel', methods=['GET', 'POST'])
-def index():
-    global original_publications, filtered_publications, filters
-    unique_types = []
-    years = []
 
-    if request.method == 'POST':
-        # Handle file upload
-        if 'excel_file' in request.files:
-            excel_file = request.files['excel_file']
+def find_exact_author(name, email_domain=None):
+    search_query = scholarly.search_author(name)
+    name_lower = name.strip().lower()
+    email_domain = email_domain.strip().lower() if email_domain else None
 
-            if excel_file.filename.endswith('.xlsx'):
-                file_path = os.path.join(UPLOAD_FOLDER, excel_file.filename)
-                excel_file.save(file_path)
+    for author in search_query:
+        author_name = author.get('name', '').strip().lower()
+        author_email = author.get('email_domain', '').strip().lower()
+        if author_name == name_lower and (not email_domain or email_domain in author_email):
+            return scholarly.fill(author)
+    return None
 
-                # Read Excel and fetch data
+# Stream publication data for multiple authors
+def stream_publications_from_excel(filepath):
+    df = pd.read_excel(filepath) if filepath.endswith('.xlsx') else pd.read_csv(filepath)
+    for index, row in df.iterrows():
+        name = str(row.get('name')).strip()
+        email_domain = str(row.get('email_domain')).strip()
+        yield f"data: {json.dumps({'type': 'author_start', 'name': name})}\n\n"
+
+        try:
+            author = find_exact_author(name, email_domain)
+            if not author:
+                yield f"data: {json.dumps({'type': 'error', 'name': name, 'message': 'Author not found'})}\n\n"
+                continue
+                # working -------------------------->
+            for idx, pub in enumerate(author['publications'], 1):
                 try:
-                    paper_data = read_excel(file_path)
-                    publications = {}
+                    pub_filled = scholarly.fill(pub)
+                    bib = pub_filled.get('bib', {})
 
-                    for author, fields in paper_data.items():
-                        if author != "N/A" and author:
-                            publications[author] = fetch_crossref_papers(author)
+                    abstract = bib.get("abstract", "")
+                    summary = summarize_text(abstract) if abstract else "No abstract available"
 
-                    original_publications.update(publications)
-                    filtered_publications = original_publications.copy()
+                    publication_data = {
+                        "type": "publication",
+                        "index": idx,
+                        "author": name,
+                        "title": bib.get("title", "No Title"),
+                        "authors": bib.get("author", "Unknown"),
+                        "citations": pub_filled.get("num_citations", 0),
+                        "abstract": summary,  # ✅ Summarized abstract!
+                        "venue": bib.get("venue", "Unknown Venue"),
+                        "year": bib.get("year", "Unknown Year"),
+                        "publisher": bib.get("publisher", "Unknown Publisher")
+                    }
 
-                    # Prepare filter options
-                    for author, papers in original_publications.items():
-                        for paper in papers:
-                            if paper.get("type"):
-                                unique_types.append(paper["type"])
-                            if paper.get("year"):
-                                years.append(paper["year"])
+                    yield f"data: {json.dumps(publication_data)}\n\n"
+                    time.sleep(0.5)
+                except Exception as pub_err:
+                    print(f"⚠️ Error processing publication {idx} for {name}: {pub_err}")
+                    continue
 
-                    unique_types = sorted(set(unique_types))
-                    years = sorted(set(years))
-                except Exception as e:
-                    return f"Error processing file: {e}", 500
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'name': name, 'message': str(e)})}\n\n"
 
-        # Handle filtering
-        elif 'filter' in request.form:
-            filters["year_from"] = request.form.get("year_from", type=int)
-            filters["year_to"] = request.form.get("year_to", type=int)
-            filters["type"] = request.form.get("type")
+@app.route('/excel', methods=['GET', 'POST'])
+def excel():
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+        if uploaded_file and uploaded_file.filename.endswith(('.xlsx', '.csv')):
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+            uploaded_file.save(filepath)
+            return render_template('loading.html', filename=uploaded_file.filename)
+        else:
+            return render_template('excel.html', error="Please upload a valid .xlsx or .csv file with 'name' and 'email_domain'.")
+    return render_template('excel.html')
 
-            # Apply filters starting from the original results
-            filtered_publications = apply_filters(original_publications, filters)
+@app.route('/stream')
+def stream():
+    filename = request.args.get('filename')
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    return Response(stream_with_context(stream_publications_from_excel(filepath)), mimetype='text/event-stream')
 
-    return render_template(
-        'index.html',
-        publications=filtered_publications,
-        filters=filters,
-        authors=sorted(original_publications.keys()),
-        unique_types=unique_types,
-        years=years
-    )
-
-
-# Function to read Excel file
-def read_excel(file_path):
-    paper_data = {}
-    workbook = openpyxl.load_workbook(file_path)
-    sheet = workbook.active
-
-    for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip header row
-        name = row[0] or "N/A"
-        paper_data[name] = {
-            "publication": row[1] or "N/A",
-            "paper_type": row[2] or "N/A",
-            "pub_year": row[3] or "N/A",
-            "important_field": row[4] or "N/A",
-        }
-    return paper_data
 
 # Load once (outside the route)
 model_name = "google/pegasus-xsum"
@@ -109,7 +109,7 @@ def summarize_text(text):
         inputs["input_ids"], 
         num_beams=5,
         max_length=100,
-        min_length=30,
+        min_length=50,
         length_penalty=2.0,
         early_stopping=True,
     )
@@ -127,23 +127,44 @@ def fetch_crossref_papers(author):
     cr = Crossref()
     try:
         works = cr.works(query=author, limit=5)
-        paper_details = [
-            {
-                "title": item.get("title", ["N/A"])[0],
-                "type": item.get("type", "N/A"),
-                "year": item.get("published-print", {}).get("date-parts", [[None]])[0][0]
-                or item.get("published-online", {}).get("date-parts", [[None]])[0][0],
-                "authors": ", ".join(
-                    f"{auth.get('given', '')} {auth.get('family', '')}".strip()
-                    for auth in item.get("author", [])
-                ),
-                "abstract": item.get("abstract", "N/A"),
-            }
-            for item in works.get("message", {}).get("items", [])
-        ]
-        return sorted(
-            paper_details, key=lambda x: x.get("year", float("-inf")) or float("-inf"), reverse=True
-        )
+        paper_details = []
+
+        for item in works.get("message", {}).get("items", []):
+            title = item.get("title", ["N/A"])[0]
+            paper_type = item.get("type", "N/A")
+            year = (
+                item.get("published-print", {}).get("date-parts", [[None]])[0][0]
+                or item.get("published-online", {}).get("date-parts", [[None]])[0][0]
+            )
+            authors = ", ".join(
+                f"{auth.get('given', '')} {auth.get('family', '')}".strip()
+                for auth in item.get("author", [])
+            )
+            abstract = item.get("abstract", "N/A")
+
+            # Clean abstract (sometimes includes tags like <jats:p>…</jats:p>)
+            if abstract != "N/A":
+                abstract = abstract.replace("<jats:p>", "").replace("</jats:p>", "").strip()
+
+            # Generate summary if abstract is present
+            summary = "N/A"
+            if abstract != "N/A" and len(abstract.split()) > 5:
+                try:
+                    summary = summarize_text(abstract)
+                except Exception as e:
+                    summary = f"Error summarizing: {e}"
+
+            paper_details.append({
+                "title": title,
+                "type": paper_type,
+                "year": year,
+                "authors": authors,
+                "abstract": abstract,
+                "summary": summary
+            })
+
+        return sorted(paper_details, key=lambda x: x.get("year", float("-inf")) or float("-inf"), reverse=True)
+
     except Exception as e:
         return [{"error": str(e)}]
 
@@ -190,6 +211,14 @@ def apply_filters(publications, filters):
             filtered[author] = filtered_papers
 
     return filtered
+from urllib.parse import unquote
+
+@app.route('/author/<author>')
+def get_author_papers(author):
+    author = unquote(author)
+    author_papers = filtered_publications.get(author, [])
+    return jsonify(author_papers)
+
 
 def fetch_author_url(name):
     # Replace spaces with '+' for URL encoding
@@ -207,6 +236,8 @@ def fetch_author_url(name):
     except (KeyError, IndexError):
         return None  # Handle cases where the expected data structure doesn't exist
     return None
+
+
 
 @app.route('/organization')
 def organization():
@@ -306,8 +337,6 @@ def fetch_papers(author_url):
         json.dump(papers, w, ensure_ascii=False, indent=4)
     
     return papers
-
-
 
 @app.route('/bibtex')
 def bibtex():

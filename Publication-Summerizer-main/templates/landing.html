@@ -5,100 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Landing Page</title>
     <style>
-      /* General styles */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: Arial, sans-serif;
       }
 
       body {
-        background: linear-gradient(135deg, beige, rgb(239, 239, 190));
-        color: #333;
-        line-height: 1.6;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(120deg, #f9f7f7, #e3e2df);
+        color: #222;
         overflow-x: hidden;
       }
 
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* Header */
       header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 50px;
-        background: #fff;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 25px 60px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         position: sticky;
         top: 0;
         z-index: 1000;
+        animation: slideDown 1s ease-in-out;
       }
 
-      header .logo {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #ff6f61;
-        animation: fadeInLeft 1.5s;
+      .logo {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #ff5e57;
+        letter-spacing: 1px;
+        animation: fadeIn 1.2s ease;
       }
 
-      header nav ul {
-        list-style: none;
+      nav ul {
         display: flex;
+        gap: 30px;
+        list-style: none;
       }
 
-      header nav ul li {
-        margin: 0 15px;
+      nav ul li a {
+        font-weight: 500;
+        color: #444;
+        transition: all 0.3s ease;
       }
 
-      header nav ul li a {
-        text-decoration: none;
-        color: #333;
-        font-size: 1rem;
-        transition: color 0.3s ease;
+      nav ul li a:hover {
+        color: #ff5e57;
+        transform: scale(1.05);
       }
 
-      header nav ul li a:hover {
-        color: #ff6f61;
-      }
-
+      /* Hero Section */
       .hero {
-        height: 90vh;
+        min-height: 90vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
-        animation: fadeInUp 2s;
+        padding: 0 20px;
+        background: linear-gradient(to right, #fceabb, #f8b500);
+        color: #000;
+        animation: fadeUp 1.5s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, #ffffff80 10%, transparent 70%);
+        z-index: 0;
+        animation: shine 6s infinite linear;
       }
 
       .hero h1 {
-        font-size: 3rem;
-        color: #000;
+        font-size: 3.5rem;
+        font-weight: bold;
+        z-index: 1;
       }
 
       .hero p {
-        font-size: 1.2rem;
-        margin: 20px 0;
-        color: #000;
+        margin-top: 20px;
+        font-size: 1.3rem;
+        z-index: 1;
       }
 
       .hero button {
-        padding: 10px 30px;
+        margin-top: 30px;
+        padding: 14px 40px;
         font-size: 1rem;
-        color: #fff;
         background: #000;
+        color: #fff;
         border: none;
         border-radius: 50px;
         cursor: pointer;
-        transition: transform 0.3s;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        z-index: 1;
       }
 
       .hero button:hover {
-        transform: scale(1.1);
+        background: #222;
+        transform: translateY(-3px);
       }
 
-      @keyframes fadeInLeft {
+      /* Footer */
+      footer {
+        background: #111;
+        color: #fff;
+        text-align: center;
+        padding: 20px 0;
+        font-size: 0.9rem;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateX(-50px);
+          transform: translateX(-30px);
         }
         to {
           opacity: 1;
@@ -106,7 +143,7 @@
         }
       }
 
-      @keyframes fadeInUp {
+      @keyframes fadeUp {
         from {
           opacity: 0;
           transform: translateY(50px);
@@ -117,26 +154,231 @@
         }
       }
 
-      footer {
-        background: #333;
-        color: #fff;
-        text-align: center;
-        padding: 15px;
-        margin-top: 20px;
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
-      footer p {
-        margin: 0;
+      @keyframes shine {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
       }
+
+      @media (max-width: 768px) {
+        header {
+          flex-direction: column;
+          padding: 20px;
+        }
+
+        nav ul {
+          flex-direction: column;
+          align-items: center;
+          gap: 15px;
+          margin-top: 10px;
+        }
+
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero p {
+          font-size: 1.1rem;
+        }
+      }
+
+      /* Base styles */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #fdf6e3, #f5f2c7);
+  color: #222;
+  overflow-x: hidden;
+}
+
+header {
+  background: #fff;
+  padding: 20px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ff6f61;
+  animation: fadeInLeft 1.2s;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #333;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+nav ul li a:hover {
+  color: #ff6f61;
+}
+
+.hero {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto 30px;
+}
+
+.cta-button {
+  background: linear-gradient(to right, #ff6f61, #ff9472);
+  border: none;
+  color: white;
+  padding: 12px 35px;
+  font-size: 1rem;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(255, 111, 97, 0.4);
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 111, 97, 0.5);
+}
+
+.features {
+  display: flex;
+  justify-content: space-around;
+  padding: 60px 50px;
+  background-color: #fff6e6;
+  flex-wrap: wrap;
+}
+
+.feature {
+  flex: 1;
+  margin: 20px;
+  min-width: 250px;
+  max-width: 300px;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s;
+}
+
+.feature:hover {
+  transform: translateY(-5px);
+}
+
+.feature h3 {
+  margin-bottom: 10px;
+  color: #ff6f61;
+}
+
+.cta-banner {
+  background: linear-gradient(to right, #ffe7d1, #fff5d7);
+  text-align: center;
+  padding: 80px 20px;
+}
+
+footer {
+  text-align: center;
+  background: #333;
+  color: #fff;
+  padding: 20px 10px;
+}
+
+/* Animations */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-down {
+  animation: fadeInDown 1s ease-in-out both;
+}
+
+.fade-in-up {
+  animation: fadeInUp 1.3s ease-in-out both;
+}
+
+.fade-in {
+  animation: fadeIn 2s ease-in-out both;
+}
+
     </style>
   </head>
   <body>
     <header>
-      <div class="logo">Bugbyte</div>
+      <div class="logo"></div>
       <nav>
         <ul>
           <li><a href="#">Home</a></li>
-          <li><a href="#">Pricing</a></li>
           <li><a href="#">Login</a></li>
           <li><a href="/excel">Excel</a></li>
           <li><a href="/bibtex">Bibtex</a></li>
@@ -144,17 +386,34 @@
         </ul>
       </nav>
     </header>
-
+  
     <section class="hero">
-      <h1>Welcome to Our Service</h1>
-      <p>
-        Your gateway to amazing experiences and solutions. Let's get started!
-      </p>
-      <button>Get Started</button>
+      <h1 class="fade-in-down">Summarize Smarter with Us</h1>
+      <p class="fade-in">From complex files to dense papers, We deliver clear, concise summaries in seconds. Save time. Stay sharp.</p>
+      <button class="cta-button" onclick="window.location.href='/get-started'">Try It Now</button>
     </section>
-
-    <footer>
-      <p>&copy; 2024 Bugbyte. All rights reserved.</p>
-    </footer>
+  
+    <section class="features">
+      <div class="feature fade-in-up">
+        <h3>📂 Upload Anything</h3>
+        <p>Supports BibTeX, Excel, organizational docs, and more — just drag, drop, and relax.</p>
+      </div>
+      <div class="feature fade-in-up">
+        <h3>⚡ Instant Summaries</h3>
+        <p>Get clean, precise summaries instantly powered by intelligent parsing and AI techniques.</p>
+      </div>
+      <div class="feature fade-in-up">
+        <h3>🎯 Always Relevant</h3>
+        <p>No fluff, no filler — just what matters most. Tailored for research, reports, and clarity.</p>
+      </div>
+    </section>
+  
+    <section class="cta-banner">
+      <h2 class="fade-in">Start Summarizing in Seconds</h2>
+      <p class="fade-in">No sign-up required. Just upload your document and see the magic.</p><br/>
+      <button class="cta-button" onclick="window.location.href='/get-started'">Get Started</button>
+    </section>
+  
   </body>
+  
 </html>
