@@ -13,7 +13,7 @@ from scholarly import scholarly
 import pandas as pd
 app = Flask(__name__)
 
-api_key = '2f545f4a6d8667f8a35885ddc7c6edb6c8558d88d4de1bfc2ae4544995399c8b'
+api_key = ''
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
