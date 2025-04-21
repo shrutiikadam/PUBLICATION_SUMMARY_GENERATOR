@@ -14,7 +14,7 @@ from transformers import PegasusForConditionalGeneration, PegasusTokenizer
 
 app = Flask(__name__)
 
-api_key = ''
+api_key = '54d27e4262c11dcd791af7df6a496401e6528d4513419932764a1b84cf0680f6'
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -109,7 +109,7 @@ def summarize_text(text):
         inputs["input_ids"], 
         num_beams=5,
         max_length=100,
-        min_length=30,
+        min_length=50,
         length_penalty=2.0,
         early_stopping=True,
     )
@@ -388,6 +388,10 @@ def search():
 @app.route("/")
 def landing():
     return render_template("landing.html") 
+
+@app.route("/pricing")
+def pricing():
+    return render_template("pricing.html") 
 
 
 if __name__ == '__main__':
