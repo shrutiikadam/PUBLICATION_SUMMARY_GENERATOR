@@ -1,181 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- For Word Export (docx) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.0.2/docx.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.0.2/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- For Excel Export (xlsx) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Publication Data Uploader</title>
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
     <style>
+    body {
+      font-family: 'Segoe UI', 'Times New Roman', serif;
+      margin: 0;
+      padding: 0;
+      background-color: gray;
+      background-size: cover;
+      color: #2c2c2c;
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    h1 {
+      background-color: #1e1203;
+      color: #fff;
+      padding: 20px 0;
+      text-align: center;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      font-size: 28px;
+    }
+    
+    .sidebar {
+      width: 280px;
+      background-color: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(6px);
+      padding: 25px 20px;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 3px 0 10px rgba(0, 0, 0, 0.05);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+    
+    .sidebar form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+    
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color:rgb(255, 255, 255);
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    input[type="file"],
+    button,
+    select {
+      padding: 10px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      transition: border 0.3s, box-shadow 0.3s;
+    }
+    
+    input:focus,
+    select:focus {
+      border-color: #5c3d1c;
+      box-shadow: 0 0 5px rgba(92, 61, 28, 0.2);
+      outline: none;
+    }
+    
+    button {
+      background-color: #1e1203;
+      color: #fff;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    button:hover {
+      background-color: #3b2208;
+    }
+    
+    .main-content {
+      flex-grow: 1;
+      padding: 30px;
+      overflow-x: hidden;
+    }
+    
+    .dynamic-search {
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .dynamic-search input {
+      width: 60%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      transition: border 0.3s;
+    }
+    
+    .dynamic-search input:focus {
+      border-color:rgb(255, 255, 255);
+      outline: none;
+    }
+    
+    h2 {
+      color:rgb(244, 239, 233);
+      font-size: 22px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    
+    h3 {
+      color: #000;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+    
+    ol {
+      padding-left: 0;
+      list-style: none;
+    }
+    
+    li {
+      background-color: #ffffffdf;
+      padding: 18px 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    li:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.12);
+    }
+    
+    #title {
+      font-weight: 700;
+      font-size: 16px;
+      color: #1d1402;
+    }
+    
+    .highlight {
+      background-color: #ffeb3b;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    
+    a {
+      color: #0077cc;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    a:hover {
+      color: #0055aa;
+      text-decoration: underline;
+    }
+    
+    .no-link {
+      color: red;
+      font-style: italic;
+    }
+    
+    .publication-list-container {
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    #title{
+      font-size: 20px;
+    }
+    .summary {
+      margin-top: 6px;
+      font-style: italic;
+      color: #444;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
       body {
-        font-family: "Times New Roman", sans-serif;
-        margin: 0;
-        padding: 0;
-        background: url("{{url_for('static', filename='bglogin.jpeg.jpg')}}")
-          no-repeat center center fixed;
-        background-size: cover;
-        color: #333;
-        display: flex;
-      }
-      h1 {
-        background-color: #241003;
-        color: white;
-        padding: 20px;
-        text-align: center;
-        margin-bottom: 30px;
-        border-radius: 8px;
-      }
-      .sidebar {
-        width: 300px;
-        background-color: #ffffff29;
-        padding: 20px;
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        margin-right: 20px;
-        height: 100vh;
-      }
-      .sidebar::before {
-        position: absolute;
-        content: "";
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        backdrop-filter: blur(1px); /* Initial blur effect */
-        background-color: rgba(
-          255,
-          255,
-          255,
-          0.3
-        ); /* Slight opacity over background */
-        z-index: -1;
-        transition: backdrop-filter 0.3s ease-in-out,
-          background-color 0.3s ease-in-out; /* Smooth transition on blur and opacity */
-      }
-      .sidebar form {
-        display: flex;
         flex-direction: column;
-        gap: 20px;
       }
-      label {
-        font-size: 14px;
-        font-weight: 600;
-        color: #333;
-      }
-      input[type="text"],
-      input[type="number"],
-      button {
-        padding: 12px;
-        font-size: 14px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        transition: border-color 0.3s ease;
-      }
-      input[type="text"]:focus,
-      input[type="number"]:focus {
-        border-color: #0056b3;
-        outline: none;
-      }
-      button {
-        background-color: #241003;
-        color: white;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      button:hover {
-        background-color: #241003;
-      }
-      .main-content {
-        flex-grow: 1;
-        padding: 30px;
-        overflow-x: hidden;
-      }
-      .dynamic-search {
-        margin-bottom: 30px;
-        display: flex;
-        justify-content: center;
-      }
-      .dynamic-search input {
-        width: 50%;
-        padding: 12px;
-        font-size: 16px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        transition: border-color 0.3s ease;
-      }
-      .dynamic-search input:focus {
-        border-color: #0056b3;
-        outline: none;
-      }
-      h2 {
-        color: #241003;
+    
+      .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid rgba(251, 245, 245, 0.2);
         margin-bottom: 20px;
-        font-size: 22px;
-        font-weight: 600;
       }
-
-      h3 {
-        color: #000000;
-      }
-      ol {
-        padding-left: 0;
-        list-style: none;
-      }
-      li {
-        background-color: #ffffff;
+    
+      .main-content {
         padding: 20px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
       }
-      li:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-      }
-      #title {
-        font-weight: bold;
-        font-size: 16px;
-      }
-      .highlight {
-        background-color: yellow;
-        font-weight: bold;
-      }
-      a {
-        color: #0056b3;
-        text-decoration: none;
-        transition: color 0.3s ease;
-      }
-      a:hover {
-        color: #00408d;
-        text-decoration: underline;
-      }
-      .no-link {
-        color: red;
-        font-style: italic;
-      }
-      .publication-list-container {
-        max-height: 500px;
-        overflow-y: auto;
-        margin-top: 20px;
-      }
-      .hidden {
-        display: none !important;
+    
+      .dynamic-search input {
+        width: 100%;
       }
 
-      @media (max-width: 768px) {
-        .main-content {
-          padding: 20px;
-        }
-        .sidebar {
-          width: 100%;
-          margin-bottom: 20px;
-        }
-        .dynamic-search input {
-          width: 100%;
-        }
+      #authors{
+        font-size: 13px;
       }
-    </style>
+    }
+  </style>
   </head>
   <body>
     <div class="sidebar">
@@ -187,11 +234,7 @@
       </form>
 
       <!-- Form to Search by Author Name -->
-      <form action="/search" method="post">
-        <label for="author">Search Publications by Author Name:</label>
-        <input type="text" name="author" placeholder="Enter author name" />
-        <button type="submit">Search</button>
-      </form>
+      
 
       <!-- Display Authors List as Filters -->
       {% if authors %}
@@ -205,11 +248,15 @@
       {% endif %}
 
       <!-- Dynamic Filter by Year Range -->
-      <label for="start-year">Filter by Year Range:</label>
-      <input type="number" id="startYear" placeholder="Start Year" />
-      <input type="number" id="endYear" placeholder="End Year" />
-    </div>
+      <label for="start-year">Filter by Year Range:</label><br></br>
+      <input type="number" id="startYear" placeholder="Start Year" /><br></br>
+      <input type="number" id="endYear" placeholder="End Year" /><br/>
 
+      <button id="exportPDF">export</button>
+      <button id="exportExcel">export</button>
+
+    </div>
+    
     <div class="main-content">
       <h1>Publication Data Search</h1>
 
@@ -231,7 +278,7 @@
       {% for entry in entries %}
       <li data-year="{{ entry.year }}" data-authors="{{ entry.author }}">
         <span id="title">{{ entry.title }}</span><br/>
-        <span id="authors">by {{ entry.author }}</span> ({{ entry.year }})<br/>
+        <span id="authors">by {{ entry.author }}</span> ({{ entry.year }})<br/><br/>
         <span class="abstract">{{ entry.abstract }}</span><br/>
 
         <!-- Summarize Button -->
@@ -408,6 +455,63 @@
         const result = await response.json();
         summaryDiv.innerText = "Summary: " + result.summary;
       }
-      </script>
+
+// EXCEL EXPORT
+document.getElementById("exportExcel").addEventListener("click", () => {
+  const visibleItems = document.querySelectorAll("li:not(.hidden)");
+
+  const data = [["Title", "Authors", "Year", "Abstract"]];
+
+  visibleItems.forEach((item) => {
+    const title = item.querySelector("span[id='title']")?.innerText || "Untitled";
+    const authors = item.querySelector("span[id='authors']")?.innerText || "Unknown";
+    const year = item.getAttribute("data-year") || "N/A";
+    const abstract = item.querySelector(".summary")?.innerText || "No abstract";
+    data.push([title, authors, year, abstract]);
+  });
+
+  const worksheet = XLSX.utils.aoa_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Filtered Papers");
+
+  XLSX.writeFile(workbook, "FilteredPapers.xlsx");
+});
+
+document.getElementById("exportPDF").addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const visibleItems = document.querySelectorAll("li:not(.hidden)");
+
+  let y = 10; // Starting vertical position
+
+  doc.setFontSize(16);
+  doc.text("Filtered Research Papers", 10, y);
+  y += 10;
+
+  visibleItems.forEach((item, index) => {
+    const title = item.querySelector("span[id='title']")?.innerText || "Untitled";
+    const authors = item.querySelector("span[id='authors']")?.innerText || "Unknown";
+    const year = item.getAttribute("data-year") || "N/A";
+    const abstract = item.querySelector(".summary")?.innerText || "No abstract";
+
+    const entry = `#${index + 1}\nTitle: ${title}\nAuthors: ${authors}\nYear: ${year}\nSummary: ${abstract}\n`;
+
+    const lines = doc.splitTextToSize(entry, 180); // Wrap long text
+    doc.setFontSize(12);
+    doc.text(lines, 10, y);
+    y += lines.length * 7;
+
+    // If we're nearing the bottom of the page, add a new one
+    if (y > 270) {
+      doc.addPage();
+      y = 10;
+    }
+  });
+
+  doc.save("FilteredPapers.pdf");
+});
+
+</script>
   </body>
 </html>

@@ -5,183 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Google Scholar Author Lookup</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f9;
-        color: #333;
-        line-height: 1.6;
-      }
-      h1 {
-        text-align: center;
-        color: #333;
-      }
-      .container {
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      .input-group {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-      }
-      .input-group input {
-        width: 70%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        margin-right: 10px;
-        font-size: 16px;
-      }
-      .input-group button {
-        padding: 10px 20px;
-        border: none;
-        background: #007bff;
-        color: white;
-        font-size: 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.3s;
-      }
-      .input-group button:hover {
-        background: #0056b3;
-      }
-      #output {
-        margin-top: 20px;
-      }
-      .card {
-        background: #f9f9f9;
-        padding: 15px;
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-      }
-      .thumbnail {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 50%;
-        margin-bottom: 10px;
-      }
-      .btns {
-        margin-top: 10px;
-      }
-      .btns button {
-        margin-right: 10px;
-        padding: 8px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        background: #28a745;
-        color: white;
-        transition: background 0.3s;
-      }
-      .btns button:hover {
-        background: #218838;
-      }
-      #citationChartContainer {
-        display: none; /* Initially hidden */
-        margin-top: 30px;
-      }
-      #papersContainer {
-        padding: 20px;
-      }
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-      .card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 16px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-      }
-
-      .card h3 {
-        margin-top: 0;
-        font-size: 1.25rem;
-        color: #333;
-      }
-
-      .card p {
-        margin: 8px 0;
-        color: #555;
-      }
-
-      /* .card a {
-        display: inline-block;
-        text-decoration: none;
-        padding: 8px 12px;
-        background-color: #007bff;
-        color: #fff;
-        border-radius: 4px;
-        font-size: 0.875rem;
-        transition: background-color 0.3s ease;
-      } */
-
-      /* .card a:hover {
-        background-color: #0056b3;
-      } */
-      .card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 16px;
-        margin: 16px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        max-width: 400px;
-        font-family: Arial, sans-serif;
-      }
-
-      .card img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 16px;
-      }
-
-      .card h3 {
-        font-size: 1.2em;
-        margin-bottom: 8px;
-      }
-
-      .card p {
-        margin: 8px 0;
-      }
-
-      .card ul {
-        list-style: disc;
-        padding-left: 20px;
-        margin-top: 8px;
-      }
-
-      .card a {
-        color: #007bff;
-        text-decoration: none;
-      }
-
-      .card a:hover {
-        text-decoration: underline;
-      }
-
-      .card button {
-        margin: 8px 4px;
-        padding: 8px 12px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .card button:hover {
-        background-color: #0056b3;
-      }
-    </style>
   </head>
   <body>
     <div id="container">
@@ -223,158 +50,22 @@
     >
       💬
     </div>
-
-    <!-- Chatbot window (hidden by default) -->
-    <div
-      id="chatbot-window"
-      style="
-        position: fixed;
-        bottom: 90px;
-        right: 20px;
-        width: 300px;
-        height: 400px;
-        background-color: white;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        display: none;
-        flex-direction: column;
-        z-index: 1000;
-      "
-    >
-      <div
-        class="chatbot-header"
-        style="
-          background-color: #00aaff;
-          color: white;
-          padding: 10px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-top-left-radius: 8px;
-          border-top-right-radius: 8px;
-        "
-      >
-        <span style="font-weight: bold">Chatbot</span>
-        <button
-          class="close-btn"
-          style="
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-          "
-          onclick="toggleChatbot()"
-        >
-          X
-        </button>
-      </div>
-      <div
-        id="chatbot-messages"
-        style="
-          flex: 1;
-          padding: 10px;
-          overflow-y: auto;
-          background-color: #f9f9f9;
-          border-bottom: 1px solid #ddd;
-        "
-      ></div>
-      <input
-        type="text"
-        id="user-input"
-        class="user-input"
-        placeholder="Type a message..."
-        style="
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-top: none;
-          border-bottom-left-radius: 8px;
-          border-bottom-right-radius: 8px;
-          width: 100%;
-          box-sizing: border-box;
-        "
-        onkeydown="sendMessage(event)"
-      />
-    </div>
-
     <script>
-      function toggleChatbot() {
-        const chatbotWindow = document.getElementById("chatbot-window");
-        chatbotWindow.style.display =
-          chatbotWindow.style.display === "none" ? "flex" : "none";
-      }
 
-      // Function to send message
-      function sendMessage(event) {
-        const inputField = document.getElementById("user-input");
-        const messageContainer = document.getElementById("chatbot-messages");
-
-        if (event.key === "Enter" && inputField.value.trim() !== "") {
-          const userMessage = inputField.value;
-          inputField.value = "";
-          const screen = document.getElementsByClassName("card");
-          const screenContent = screen.innerHTML; // Or use screen.textContent for plain text
-
-          const combinedMessage = `${userMessage}\n${screenContent}`; // Combine userMessage and screen content
-          console.log(combinedMessage);
-
-          // Display user message
-          const userMessageElem = document.createElement("div");
-          userMessageElem.classList.add("message", "user-message");
-          userMessageElem.textContent = userMessage;
-          userMessageElem.style.backgroundColor = "#00aaff";
-          userMessageElem.style.color = "white";
-          userMessageElem.style.padding = "10px";
-          userMessageElem.style.borderRadius = "10px";
-          userMessageElem.style.marginBottom = "10px";
-          userMessageElem.style.maxWidth = "80%";
-          userMessageElem.style.alignSelf = "flex-end";
-          messageContainer.appendChild(userMessageElem);
-
-          // Scroll to the bottom of the messages container
-          messageContainer.scrollTop = messageContainer.scrollHeight;
-
-          const payload = {
-            model: "llama3.2",
-            prompt: combinedMessage,
-          };
-
-          // Send the JSON request
-          fetch("/generate", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              const botResponse = data.response;
-              // Simulate a bot reply after a delay
-              setTimeout(() => {
-                const botMessageElem = document.createElement("div");
-                botMessageElem.classList.add("message", "bot-message");
-                botMessageElem.textContent = `${botResponse}`;
-                botMessageElem.style.backgroundColor = "#e4e4e4";
-                botMessageElem.style.color = "#333";
-                botMessageElem.style.padding = "10px";
-                botMessageElem.style.borderRadius = "10px";
-                botMessageElem.style.marginBottom = "10px";
-                botMessageElem.style.maxWidth = "80%";
-                botMessageElem.style.alignSelf = "flex-start";
-                messageContainer.appendChild(botMessageElem);
-
-                // Scroll to the bottom again after bot message
-                messageContainer.scrollTop = messageContainer.scrollHeight;
-              }, 1000);
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-              displayBotResponse("Sorry, I couldn't process your request.");
-            });
-        }
-      }
+    const firebaseConfig = {
+        apiKey: "AIzaSyDfnKgKseLomnmxqINmxkjET1CKexLd-EY",
+        authDomain: "publication-summary-136b8.firebaseapp.com",
+        projectId: "publication-summary-136b8",
+        storageBucket: "publication-summary-136b8.appspot.com",
+        messagingSenderId: "1084087577958",
+        appId: "1:1084087577958:web:e00a69cf3a455c9c982ca7",
+        measurementId: "G-FJGJ3ZPPNR"
+      };
+  
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      
       let citationChartInstance = null; // Global variable to store the chart instance
       document.getElementById("fetchButton").addEventListener("click", () => {
         const authorName = document.getElementById("authorInput").value.trim();
@@ -472,68 +163,68 @@
       });
 
       function fetch_citations(data) {
-        console.log(data);
-        const author = data.author;
-        const output = document.getElementById("output");
-        output.innerHTML = "";
+    console.log(data);
+    const author = data.author;
+    const output = document.getElementById("output");
+    output.innerHTML = "";
 
-        let labels = [];
-        let citationData = [];
+    let labels = [];
+    let citationData = [];
 
-        const card = document.createElement("div");
-        card.className = "card";
+    const card = document.createElement("div");
+    card.className = "card";
 
-        // Check if cited_by and table exist
-        if (data.cited_by && data.cited_by.graph && data.cited_by.table) {
-          labels = data.cited_by.graph.map((entry) => entry.year);
-          citationData = data.cited_by.graph.map((entry) => entry.citations);
-          //console.log(citationData);
-        }
+    // Check if cited_by and table exist
+    if (data.cited_by && data.cited_by.graph && data.cited_by.table) {
+        labels = data.cited_by.graph.map((entry) => entry.year);
+        citationData = data.cited_by.graph.map((entry) => entry.citations);
+        
+        // Store citation data globally so it can be accessed when adding to database
+        window.currentCitationData = {
+            labels: labels,
+            data: citationData
+        };
+    }
 
-        // Generate interests list
-        const interests = author.interests?.length
-          ? author.interests
-              .map((interest) => `<li>${interest.title}</li>`)
-              .join("")
-          : "<li>None listed</li>";
+    // Generate interests list
+    const interests = author.interests?.length
+        ? author.interests
+            .map((interest) => `<li>${interest.title}</li>`)
+            .join("")
+        : "<li>None listed</li>";
 
-        card.innerHTML = `
-      <img src="${author.thumbnail || ""}" alt="${author.name || "Author"}" />
-      <h3>${author.name || "Unknown Author"}</h3>
-      <p><strong>Affiliations:</strong> ${
-        author.affiliations || "Not Available"
-      }</p>
-      <p><strong>Total Citations:</strong> ${
-        data.cited_by?.table[0]?.citations?.all || 0
-      }</p>
-      <p><strong>H-Index:</strong> ${
-        data.cited_by?.table[1]?.h_index?.all || 0
-      }</p>
-      <p><strong>I-10 Index:</strong> ${
-        data.cited_by?.table[2]?.i10_index?.all || 0
-      }</p>
-      <p><strong>Interests:</strong></p>
-      <ul>${interests}</ul>
-      <p>
-        <strong>Link:</strong> 
-        <a href="${
-          data.search_metadata.google_scholar_author_url
-        }" target="_blank">
-          ${data.search_metadata.google_scholar_author_url}
-        </a>
-      </p>
-      <div>
-          <button onclick='showPapers(${JSON.stringify(
-            data.articles
-          )})'>Papers</button>
-          <button onclick='renderChart(${JSON.stringify(
-            labels
-          )}, ${JSON.stringify(citationData)})'>Citation Graph</button>
-      </div>
-`;
+    // Store the complete data object for later use
+    window.currentAuthorDetailedData = data;
+        
+    card.innerHTML = `
+        <img src="${author.thumbnail || ""}" alt="${author.name || "Author"}" />
+        <h3>${author.name || "Unknown Author"}</h3>
+        <p><strong>Affiliations:</strong> ${author.affiliations || "Not Available"}</p>
+        <p><strong>Total Citations:</strong> ${data.cited_by?.table[0]?.citations?.all || 0}</p>
+        <p><strong>H-Index:</strong> ${data.cited_by?.table[1]?.h_index?.all || 0}</p>
+        <p><strong>I-10 Index:</strong> ${data.cited_by?.table[2]?.i10_index?.all || 0}</p>
+        <p><strong>Interests:</strong></p>
+        <ul>${interests}</ul>
+        <p>
+            <strong>Link:</strong> 
+            <a href="${data.search_metadata.google_scholar_author_url}" target="_blank">
+                ${data.search_metadata.google_scholar_author_url}
+            </a>
+        </p>
+        <div>
+            <button onclick='showPapers(${JSON.stringify(data.articles)})'>Papers</button>
+            <button onclick='renderChart(${JSON.stringify(labels)}, ${JSON.stringify(citationData)})'>Citation Graph</button>
+            <button onclick="addAuthor('${author.name}', ${JSON.stringify(data.cited_by?.table[0]?.citations?.all || 0)}, 
+                                      ${JSON.stringify(data.cited_by?.table[1]?.h_index?.all || 0)}, 
+                                      ${JSON.stringify(data.cited_by?.table[2]?.i10_index?.all || 0)})">ADD</button>
+        </div>
+    `;  
 
-        output.appendChild(card);
-      }
+    output.appendChild(card);
+}
+
+    
+
 
       function showPapers(articles) {
         const papersContainer = document.getElementById("papersContainer");
@@ -605,6 +296,162 @@
 
         papersContainer.appendChild(grid);
       }
+
+      // First, we need to create a way to track selected papers
+      window.selectedPapers = []; // Initialize an empty array to store paper data
+
+      // Modify your showPapers function to save the papers for later use
+      function showPapers(articles) {
+          const papersContainer = document.getElementById("papersContainer");
+          const citationChartContainer = document.getElementById("citationChartContainer");
+      
+          if (citationChartInstance) {
+              citationChartInstance.destroy();
+          }
+      
+          if (!papersContainer) {
+              console.error("Error: papersContainer element not found.");
+              return;
+          }
+      
+          papersContainer.innerHTML = ""; // Clear existing content
+          
+          // Save the articles to the global variable for later use when adding to DB
+          window.selectedPapers = articles;
+      
+          if (!articles || articles.length === 0) {
+              papersContainer.innerHTML = "<p>No papers available.</p>";
+              return;
+          }
+      
+          // Rest of your showPapers function remains the same...
+          // Add a header for the papers section
+          const header = document.createElement("h2");
+          header.innerText = "Papers by Author";
+          papersContainer.appendChild(header);
+      
+          // Create a grid layout for paper cards
+          const grid = document.createElement("div");
+          grid.style.display = "grid";
+          grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(300px, 1fr))";
+          grid.style.gap = "16px";
+      
+          articles.forEach((article) => {
+              const card = document.createElement("div");
+              card.style.border = "1px solid #ddd";
+              card.style.borderRadius = "8px";
+              card.style.padding = "16px";
+              card.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+              card.style.backgroundColor = "#fff";
+      
+              card.innerHTML = `
+                  <h3 style="margin-top: 0; font-size: 1.25rem; color: #333;">${
+                      article.title
+                  }</h3>
+                  <p style="margin: 8px 0; color: #555;">Authors: ${
+                      article.authors || "Unknown"
+                  }</p>
+                  <p>Publication: ${article.publication}</p>
+                  <p>Year: ${article.year}</p>
+                  <p>No. of citations: ${article.cited_by?.value || 0}</p>    
+                  <a href="${article.link}" target="_blank" style="
+                      display: inline-block;
+                      text-decoration: none;
+                      padding: 8px 12px;
+                      background-color: #007BFF;
+                      color: #fff;
+                      border-radius: 4px;
+                      font-size: 0.875rem;
+                      transition: background-color 0.3s ease;
+                  " 
+                  onmouseover="this.style.backgroundColor='#0056b3';" 
+                  onmouseout="this.style.backgroundColor='#007BFF';"
+                  >Read Paper</a>
+              `;
+      
+              grid.appendChild(card);
+          });
+      
+          papersContainer.appendChild(grid);
+      }
+
+// Improve the addAuthor function to make sure it can handle papers properly
+async function addAuthor(authorName, totalCitations, hIndex, i10Index) {
+    try {
+        // Make sure we have papers to add
+        const papers = window.selectedPapers || [];
+        
+        if (papers.length === 0) {
+            alert("Please view the author's papers first before adding to database.");
+            return;
+        }
+
+        // Get citation data
+        const citationLabels = window.currentCitationData?.labels || [];
+        const citationCounts = window.currentCitationData?.data || [];
+        
+        // Get the author data from the stored object
+        const authorData = window.currentAuthorDetailedData;
+        const author = authorData?.author || {};
+        
+        // Extract interests as an array of strings
+        const interestsArray = author.interests 
+            ? author.interests.map(interest => interest.title) 
+            : [];
+        
+        // Add the author to Firestore with all metadata
+        const authorRef = await db.collection("authors").add({
+            name: authorName,
+            totalCitations: parseInt(totalCitations) || 0, // Parse as integers
+            hIndex: parseInt(hIndex) || 0,
+            i10Index: parseInt(i10Index) || 0,
+            interests: interestsArray,
+            affiliations: author.affiliations || "Not Available",
+            timestamp: new Date()
+        });
+        
+        console.log("Added author with ID: ", authorRef.id);
+        
+        // Create a batch for better performance
+        const batch = db.batch();
+        
+        // Add each paper to the papers subcollection
+        for (const paper of papers) {
+            const paperRef = db.collection(`authors/${authorRef.id}/papers`).doc();
+            batch.set(paperRef, {
+                title: paper.title || "Unknown Title",
+                link: paper.link || "",
+                authors: paper.authors || "",
+                publication: paper.publication || "Unknown Publication",
+                year: paper.year || "Unknown Year",
+                citations: paper.cited_by?.value || 0,
+                addedAt: new Date()
+            });
+        }
+        
+        // Add each citation entry to the citations subcollection
+        if (citationLabels.length > 0 && citationCounts.length > 0) {
+            citationLabels.forEach((year, index) => {
+                const citationRef = db.collection(`authors/${authorRef.id}/citations`).doc(year.toString());
+                batch.set(citationRef, {
+                    year: year,
+                    count: citationCounts[index],
+                    addedAt: new Date()
+                });
+            });
+        }
+        
+        // Commit the batch
+        await batch.commit();
+        
+        console.log(`Added ${papers.length} papers and ${citationLabels.length} citation entries for author ${authorName}`);
+        
+        alert(`Successfully added ${authorName} with all metadata, ${papers.length} papers, and ${citationLabels.length} citation entries to the database!`);
+    } catch (error) {
+        console.error("Error saving to Firestore:", error);
+        alert("Failed to save to database: " + error.message);
+    }
+}
 
       function renderChart(labels, data) {
         const ctx = document.getElementById("citationChart").getContext("2d");

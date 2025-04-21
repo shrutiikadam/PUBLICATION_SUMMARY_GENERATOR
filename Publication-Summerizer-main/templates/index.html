@@ -1,290 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publication Finder</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: url("{{ url_for('static', filename='bglogin.jpeg.jpg') }}") no-repeat center center fixed;
-            background-size: cover;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #ff6f61;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            padding: 0;
-            margin: 0;
-        }
-
-        nav ul li {
-            margin: 0 10px;
-        }
-
-        nav ul li a {
-            text-decoration: none;
-            color: #333;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            color: #ff6f61;
-        }
-
-        .container {
-            display: flex;
-            gap: 20px;
-            padding: 30px;
-            flex-wrap: wrap;
-        }
-
-        .sidebar {
-            flex: 1 1 300px;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .sidebar form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .sidebar input,
-        .sidebar select,
-        .sidebar button {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .sidebar button {
-            background-color: #241003;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .sidebar button:hover {
-            background-color: #ff6f61;
-        }
-
-        .main-content {
-            flex: 3;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        h1 {
-            color: #241003;
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            color: #333;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-
-        button {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #241003;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #ff6f61;
-        }
-
-        ul {
-            padding: 0;
-            list-style: none;
-        }
-
-        li {
-            background: #fff;
-            margin-bottom: 15px;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        li strong {
-            color: #241003;
-        }
-
-        .dynamic-search {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .dynamic-search input {
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 50%;
-        }
-
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                flex: 1;
-            }
-
-            .main-content {
-                flex: 1;
-            }
-
-            .dynamic-search input {
-                width: 100%;
-            }
-        }
-    </style>
-    <script>
-        function fetchAuthorPapers(author) {
-            fetch(`/author/${encodeURIComponent(author)}`)
-                .then(response => response.json())
-                .then(data => {
-                    const resultsDiv = document.getElementById("results");
-                    resultsDiv.innerHTML = `<h3>Results for ${author}</h3>`;
-                    if (data.length === 0) {
-                        resultsDiv.innerHTML += "<p>No papers found.</p>";
-                    } else {
-                        const ul = document.createElement("ul");
-                        data.forEach(paper => {
-                            const li = document.createElement("li");
-                            li.innerHTML = ` 
-                                <strong>${paper.title}</strong><br> 
-                                Year: ${paper.year}<br> 
-                                Type: ${paper.type}<br> 
-                                Authors: ${paper.authors.join(", ")}<br> 
-                                Abstract: ${paper.abstract || "No abstract available."}
-                            `;
-                            ul.appendChild(li);
-                        });
-                        resultsDiv.appendChild(ul);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching author papers:", error);
-                    const resultsDiv = document.getElementById("results");
-                    resultsDiv.innerHTML = `<p>Error fetching results for ${author}.</p>`;
-                });
-        }
-    </script>
+  <title>Add Dummy Author to Firestore</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <form method="post" enctype="multipart/form-data">
-                <label for="excel_file">Upload Excel File:</label>
-                <input type="file" id="excel_file" name="excel_file" accept=".xlsx">
-                <button type="submit">Search</button>
-            </form>
-            <hr>
-            {% if publications %}
-            <form method="post">
-                <h2>Filter Publications</h2>
-                <label for="year_from">Year From:</label>
-                <input type="number" id="year_from" name="year_from" value="{{ filters.year_from }}">
-                <label for="year_to">Year To:</label>
-                <input type="number" id="year_to" name="year_to" value="{{ filters.year_to }}">
-                <label for="type">Paper Type:</label>
-                <select id="type" name="type">
-                    <option value="">All</option>
-                    {% for paper_type in unique_types %}
-                    <option value="{{ paper_type }}" {% if filters.type == paper_type %}selected{% endif %}>{{ paper_type }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" name="filter">Apply Filters</button>
-            </form>
-            {% endif %}
-        </div>
-        <div class="main-content">
-            <h1>Publication Finder</h1>
-            <div class="dynamic-search">
-                <input type="text" id="dynamicSearch" placeholder="Search within results...">
-            </div>
-            {% if authors %}
-            <h2>Authors</h2>
-            <div>
-                {% for author in authors %}
-                <button onclick="fetchAuthorPapers('{{ author|escape }}')">{{ author }}</button>
-                {% endfor %}
-            </div>
-            {% endif %}
-            <div id="results">
-                <h2>Filtered Results</h2>
-                {% if publications %}
-                {% for author, papers in publications.items() %}
-                <h3>{{ author }}</h3>
-                <ul>
-                    {% for paper in papers %}
-                    <li>
-                        <strong>{{ paper.title }}</strong><br>
-                        Year: {{ paper.year }}<br>
-                        Type: {{ paper.type }}<br>
-                        Authors: {{ paper.authors|join(", ") }}<br>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% endfor %}
-                {% else %}
-                <p>No publications found.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+  <h2>📚 Add Dummy Author to Firestore</h2>
+  <button onclick="addDummyAuthor()">Add Dummy Author</button>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDfnKgKseLomnmxqINmxkjET1CKexLd-EY",
+      authDomain: "publication-summary-136b8.firebaseapp.com",
+      projectId: "publication-summary-136b8",
+      storageBucket: "publication-summary-136b8.appspot.com",
+      messagingSenderId: "1084087577958",
+      appId: "1:1084087577958:web:e00a69cf3a455c9c982ca7",
+      measurementId: "G-FJGJ3ZPPNR"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function addDummyAuthor() {
+      const dummyData = {
+        name: "Dr. Shruti",
+        affiliation: "Francis College of Engineering",
+        email: "shruti.s@example.com",
+        publications: [
+          { title: "AI in Education", year: 2022 },
+          { title: "Smart Cities and IoT", year: 2023 }
+        ],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      db.collection("authors").add(dummyData)
+        .then((docRef) => {
+          alert("✅ Author added with ID: " + docRef.id);
+          fetchAuthors(); // Read all docs
+        })
+        .catch((error) => {
+          console.error("❌ Error:", error);
+          alert("Error adding dummy data.");
+        });
+    }
+
+    function fetchAuthors() {
+      db.collection("authors").get()
+        .then((querySnapshot) => {
+          console.log("📋 All Authors:");
+          querySnapshot.forEach((doc) => {
+            console.log(doc.id, "=>", doc.data());
+          });
+        });
+    }
+  </script>
 </body>
 </html>
