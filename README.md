@@ -1,46 +1,64 @@
-# Publication Summary Generator
+# 📚 Publication Summary Generator
 
-This is an AI-powered tool that extracts, filters, and summarizes research publications from `.bib` files or raw text using OpenAI’s GPT models. Built for researchers and students to quickly generate concise summaries and metadata from academic content.
+**Publication Summary** is an AI-powered tool designed to extract, filter, and summarize research publications for individual authors or entire organizations. It supports `.bib` and `.xlsx` file uploads to parse publication metadata and utilizes advanced NLP models to generate clean and concise research summaries. 
 
-## Features
+This system is ideal for academic institutions, research organizations, or scholarly communities to manage and review author contributions efficiently.
 
-- Upload and parse `.bib` or raw publication files
-- Filter publications by:
-  - Author name
-  - Year of publication
-  - Keywords
-- Generate concise summaries using GPT-3.5 / GPT-4
-- View parsed publication details in a clean table format
-- Download structured output for reports or documentation
+---
+
+## ✨ Key Features
+
+- **Upload Support**: 
+  - `.bib` files for individual authors.
+  - `.xlsx` files containing publication metadata.
+  
+- **Author Filtering**: 
+  - Search and filter by author name(s).
+  - Filter publications by **year** or **author** in multi-author scenarios.
+
+- **AI-Based Summarization**:
+  - Uses a **T5-based model** for generating concise summaries of research papers.
+
+- **Organization Management**:
+  - Add authors to your organization.
+  - Manage org-wise publication records with real-time filtering.
+
+- **SerpAPI Integration**:
+  - Fetches author profile data dynamically from Google Scholar.
+
+- **Interactive UI**:
+  - Built with **React**, provides a clean and intuitive interface.
+  - Responsive across devices for easy access.
+
+---
 
 ## Tech Stack
 
-| Layer       | Technology Used              |
-|-------------|-------------------------------|
-| Frontend    | React, Tailwind CSS           |
-| Backend     | Python Flask                  |
-| AI/ML       | OpenAI GPT-3.5 / GPT-4 (API)  |
-| Parsing     | `bibtexparser`, Custom Filters|
+| Layer       | Technology                         |
+|-------------|-------------------------------------|
+| Frontend    | React, React Router, Tailwind CSS   |
+| Backend     | Python ,Flask           |
+| AI Model    | T5 Transformer (Hugging Face)       |
+| Data Fetch  | SerpAPI (Google Scholar Profiles)   |
+| File Parsing| BibTeX Parser, Pandas (for Excel)   |
 
-## How It Works
+---
 
-1. Upload a `.bib` or plain text file containing research publications.
-2. Filter by author, year, or keyword.
-3. Automatically generate structured summaries using GPT models.
-4. View the results in a table and download if needed.
+## 🛠️ Set Up Instructions
 
-## Example Use Case
+### 2. Set Up Backend (Python)
 
-Upload this `.bib` entry:
-```bibtex
-@article{smith2020ai,
-  title={AI in Healthcare},
-  author={Smith, John and Doe, Jane},
-  journal={AI Journal},
-  year={2020}
-}
-
-Title: AI in Healthcare
-Authors: John Smith, Jane Doe
-Year: 2020
-Summary: This paper explores the integration of artificial intelligence in clinical diagnostics and decision-making.. 
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate     # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+### 3. Set Up Frontend (React)
+```bash
+cd frontend
+npm install
+npm start
+```
+## Now open your browser at:
+http://localhost:3000
